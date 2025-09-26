@@ -5,26 +5,126 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Iniciar Sesión</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-neon': 'pulse-neon 2s infinite',
+                        'shimmer': 'shimmer 2s linear infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        'pulse-neon': {
+                            '0%': { 'box-shadow': '0 0 0 0 rgba(0, 245, 255, 0.7)' },
+                            '70%': { 'box-shadow': '0 0 0 10px rgba(0, 245, 255, 0)' },
+                            '100%': { 'box-shadow': '0 0 0 0 rgba(0, 245, 255, 0)' },
+                        },
+                        shimmer: {
+                            '0%': { transform: 'translateX(-100%)' },
+                            '100%': { transform: 'translateX(100%)' },
+                        }
+                    },
+                    backdropBlur: {
+                        xs: '2px',
+                    },
+                    backgroundImage: {
+                        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+                        'futuristic': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                        'neon-border': 'linear-gradient(45deg, #ff006e, #00f5ff, #ffbe0b, #8338ec)',
+                        'btn-futuristic': 'linear-gradient(45deg, #ff006e, #00f5ff)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .glass-morphism {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .neon-glow {
+            box-shadow:
+                0 0 20px rgba(255, 0, 110, 0.5),
+                0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+
+        .input-glow:focus {
+            box-shadow: 0 0 20px rgba(0, 245, 255, 0.4);
+        }
+
+        .bg-floating-orbs::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(120, 219, 255, 0.3) 0%, transparent 50%);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .btn-shimmer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-shimmer:hover::before {
+            left: 100%;
+        }
+    </style>
 </head>
 
-<body class="bg-gray-100 flex items-center justify-center min-h-screen">
-    <div class="w-full max-w-sm p-6 bg-white rounded-lg shadow-md">
-        <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Iniciar Sesión</h2>
-        <form action="/login" method="POST" class="space-y-5">
+
+<body class="min-h-screen flex items-center justify-center bg-slate-900">
+    <div class="w-full max-w-sm p-8 rounded-2xl shadow-xl bg-slate-800 border border-blue-900">
+        <h2 class="text-2xl font-bold text-center text-blue-400 mb-8">Iniciar Sesión</h2>
+        <form action="/login" method="POST" class="space-y-6">
             <div>
-                <label for="email" class="block text-sm font-medium text-gray-700">Correo electrónico</label>
+                <label for="email" class="block text-sm font-medium text-blue-300 mb-2">Correo electrónico</label>
                 <input type="email" id="email" name="email" required
-                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                    class="w-full px-4 py-3 rounded-lg bg-slate-900 text-blue-100 border border-blue-700 focus:border-blue-400 focus:ring-2 focus:ring-blue-500 outline-none transition placeholder-blue-400/60 shadow-inner"
+                    placeholder="tu@email.com">
             </div>
             <div>
-                <label for="password" class="block text-sm font-medium text-gray-700">Contraseña</label>
+                <label for="password" class="block text-sm font-medium text-blue-300 mb-2">Contraseña</label>
                 <input type="password" id="password" name="password" required
-                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                    class="w-full px-4 py-3 rounded-lg bg-slate-900 text-blue-100 border border-blue-700 focus:border-blue-400 focus:ring-2 focus:ring-blue-500 outline-none transition placeholder-blue-400/60 shadow-inner"
+                    placeholder="••••••••">
             </div>
             <button type="submit"
-                class="w-full py-2 px-4 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 transition">Entrar</button>
+                class="w-full py-3 mt-4 rounded-lg bg-gradient-to-r from-blue-700 via-blue-500 to-blue-400 text-white font-bold shadow-lg hover:scale-105 hover:shadow-blue-500/40 transition-all duration-300">
+                Entrar
+            </button>
         </form>
+        <div class="flex justify-center gap-6 mt-8">
+            <span
+                class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-blue-900/60 border border-blue-700 shadow">
+                <i class="fab fa-google text-xl text-blue-300"></i>
+            </span>
+            <span
+                class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-blue-900/60 border border-blue-700 shadow">
+                <i class="fab fa-facebook-f text-xl text-blue-300"></i>
+            </span>
+            <span
+                class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-blue-900/60 border border-blue-700 shadow">
+                <i class="fab fa-github text-xl text-blue-300"></i>
+            </span>
+        </div>
     </div>
 </body>
 

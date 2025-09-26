@@ -1,15 +1,10 @@
-from flask_restful import Resource
+from recursos import HelloWorld, InicioDeSesion, RegistroUsuario
 
-class HelloWorld(Resource):
-    def get(self):
-        return {'message': 'Hello, API World!'}
 
-class Item(Resource):
-    def get(self, item_id):
-        # Ejemplo de obtención de un ítem ficticio
-        return {'item_id': item_id, 'name': f'Item {item_id}'}
 
-class APIRoutes:
-    def init_api(self, api):
-        api.add_resource(HelloWorld, '/')
-        api.add_resource(Item, '/item/<int:item_id>')
+class RutasAPI:
+    #Recibe el lugar donde estaran disponibles las rutas
+    def inicializar_rutas(self, api):
+      api.add_resource(HelloWorld, '/')
+      api.add_resource(InicioDeSesion, '/login')
+      api.add_resource(RegistroUsuario, '/signup')
