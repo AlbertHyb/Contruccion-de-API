@@ -33,64 +33,97 @@ Contruccion-de-API/
 
 ## 🎯 Funcionalidades
 
-### ✅ Implementadas
-- **API REST básica** con endpoints de demostración
-- **Sistema de rutas modular** usando Flask-RESTful
-- **Interfaz de login** responsiva con Tailwind CSS
-- **Endpoint HelloWorld** (`/`) para pruebas básicas
-- **Endpoint de items** (`/item/<id>`) para gestión de recursos
+# Construcción de API con Flask y Supabase
 
-### 🔄 En desarrollo
-- Sistema completo de autenticación
-- CRUD completo para recursos
-- Validación de datos
-- Manejo de errores personalizado
-- Base de datos integration
+Este proyecto es una API y frontend minimalista para registro e inicio de sesión de usuarios, usando **Flask** y **Supabase** como backend de autenticación.
 
-## 🚀 Instalación y Configuración
+## Requisitos
 
-### Prerrequisitos
-- Python 3.8 o superior
-- pip (gestor de paquetes de Python)
+- Python 3.8+
+- pip
+- Cuenta en [Supabase](https://supabase.com/)
+- (Opcional) Entorno virtual Python
 
-### Paso a paso
+## Instalación
 
-1. **Clonar el repositorio:**
+1. **Clona el repositorio:**
    ```bash
    git clone https://github.com/AlbertHyb/Contruccion-de-API.git
    cd Contruccion-de-API
    ```
 
-2. **Crear entorno virtual:**
+2. **Crea y activa un entorno virtual:**
    ```bash
-   python -m venv venv
-   source venv/bin/activate  # En Linux/Mac
-   # o
-   venv\Scripts\activate     # En Windows
+   python3 -m venv .env
+   source .env/bin/activate
    ```
 
-3. **Instalar dependencias:**
+3. **Instala las dependencias:**
    ```bash
-   pip install flask flask-restful
+   pip install -r requirements.txt
    ```
 
-4. **Ejecutar la aplicación:**
+4. **Configura tus claves de Supabase:**
+   - Crea un archivo `config.py` (no se sube a GitHub, está en `.gitignore`).
+   - Agrega tus claves:
+     ```python
+     SUPABASE_URL = "https://<TU_SUPABASE_URL>.supabase.co"
+     SUPABASE_KEY = "<TU_SUPABASE_KEY>"
+     ```
+
+   **O usa variables de entorno** (recomendado para producción):
+   - Exporta tus claves antes de correr la app:
+     ```bash
+     export SUPABASE_URL="https://<TU_SUPABASE_URL>.supabase.co"
+     export SUPABASE_KEY="<TU_SUPABASE_KEY>"
+     ```
+
+## Uso
+
+1. **Ejecuta la aplicación:**
    ```bash
    python app.py
    ```
 
-5. **Acceder a la API:**
-   - Servidor local: `http://localhost:5000`
-   - Login: `http://localhost:5000/login` (si está configurado)
+2. **Abre tu navegador en:**
+   ```
+   http://127.0.0.1:5000/login
+   ```
+   o
+   ```
+   http://127.0.0.1:5000/registro
+   ```
 
-## 📡 Endpoints Disponibles
+## Estructura del proyecto
 
-| Método | Endpoint | Descripción | Estado |
-|--------|----------|-------------|--------|
-| `GET` | `/` | Mensaje de bienvenida | ✅ Activo |
-| `GET` | `/item/<int:id>` | Obtener información de un item | ✅ Activo |
-| `POST` | `/login` | Autenticación de usuario | 🔄 En desarrollo |
+```
+Contruccion-de-API/
+│
+├── app.py
+├── config.py           # Tus claves (no se sube a GitHub)
+├── recursos.py
+├── routes.py
+├── requirements.txt
+├── templates/
+│   ├── login.html
+│   └── registro.html
+└── ...
+```
 
+## Seguridad
+
+- **No subas tus claves de Supabase a GitHub.**
+- Usa variables de entorno o archivos ignorados por git para tus datos sensibles.
+
+## Créditos
+
+- [Flask](https://flask.palletsprojects.com/)
+- [Supabase](https://supabase.com/)
+- [Tailwind CSS](https://tailwindcss.com/)
+
+---
+
+¿Tienes dudas o sugerencias? ¡Abre un issue o pull request!
 ### Ejemplos de uso
 
 **Obtener mensaje de bienvenida:**
