@@ -1,7 +1,7 @@
-from unittest import result
 from flask_restful import Resource
 from flask import render_template, make_response, request
-from supabase import create_client, Client
+from config import supabase
+
 
 
 
@@ -34,8 +34,19 @@ class RegistroUsuario(Resource):
         contrasena = request.form.get('password')
         telefono = request.form.get('telefono')
 
-        #Registro en Supabase Auth
+        # Validaciones
+        if not contrasena or len(contrasena) < 6:
+            return "Error: La contraseña debe tener al menos 6 caracteres"
+        
+        if not correo or not nombre or not telefono:
+            return "Error: Todos los campos son obligatorios"
 
+        # Limpiar el teléfono (quitar espacios y caracteres especiales)
+        telefono_limpio = ''.join(filter(str.isdigit, telefono))
+
+        print(f"Datos recibidos - Nombre: {nombre}, Correo: {correo}, Teléfono: {telefono} -> Limpio: {telefono_limpio}")
+
+        #Registro en Supabase Auth
         try:
             response = supabase.auth.sign_up({
                 "email": correo,
@@ -43,26 +54,49 @@ class RegistroUsuario(Resource):
                 "options": {
                     "data": {
                         "nombre": nombre,
-                        "telefono": telefono
+                        "telefono": telefono_limpio
                     }
                 }
             })
+
+            print(f"Respuesta Auth: {response}")
+            print(f"Usuario creado: {response.user}")
+
             if response.user:
                 #Guardar informacion adicional en la tabla "usuarios"
                 auth_id = response.user.id
-                data, error = supabase.table("usuarios").insert({
+                print(f"🔑 Auth ID: {auth_id}")
+
+                # Datos que vamos a insertar
+                datos_insertar = {
                     "auth_id": auth_id,
                     "nombre": nombre,
                     "correo": correo,
-                    "telefono": telefono
-                }).execute()
-                if result.error:
-                    return "Error al guardar datos adicionales: {result.error}"
-                return "Registro exitoso, por favor verifica tu correo"
+                    "telefono": telefono_limpio
+                }
+                print(f"Datos a insertar: {datos_insertar}")
+
+                try:
+                    result = supabase.table("usuarios").insert(datos_insertar).execute()
+                    
+                    print(f"Resultado completo: {result}")
+                    print(f"Data insertada: {result.data}")
+                    print(f"Count: {result.count}")
+                    
+                    if hasattr(result, 'error') and result.error:
+                        print(f"Error en inserción: {result.error}")
+                        return f"Error al guardar: {result.error}"
+                    
+                    if result.data and len(result.data) > 0:
+                        return "Registro exitoso, usuario guardado en base de datos"
+                    else:
+                        return f"Usuario creado en Auth pero no se guardó en tabla usuarios. Resultado: {result}"
+                        
+                except Exception as tabla_error:
+                    print(f"Excepción al insertar en tabla: {tabla_error}")
+                    return f"Error al insertar en tabla usuarios: {str(tabla_error)}"
             else:
-                return "Error en el registro"
+                return f"Error en el registro: {response}"
         except Exception as e:
-            return f"Excepcion durante el registro: {str(e)}"    
-               
-        
-        
+            print(f"Excepción: {e}")
+            return f"Excepcion durante el registro: {str(e)}"
