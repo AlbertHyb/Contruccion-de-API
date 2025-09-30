@@ -1,10 +1,14 @@
 from flask import Flask
 from flask_restful import Resource, Api
 from routes import RutasAPI
+import config
 
 
 #Estamos creando una instancia/objeto de Flask
 app = Flask(__name__)
+
+#
+app.config['SQLALCHEMY_DATABASE_URI'] = config.SQLALCHEMY_DATABASE_URI
 
 #El objeto "app" es el que me va a permitir manejar el servidor
 
