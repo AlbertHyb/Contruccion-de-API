@@ -1,4 +1,4 @@
-from recursos import HelloWorld, InicioDeSesion, RegistroUsuario
+from recursos import HelloWorld, InicioDeSesion, RegistroUsuario, PerfilUsuario
 
 
 
@@ -8,3 +8,4 @@ class RutasAPI:
       api.add_resource(HelloWorld, '/')
       api.add_resource(InicioDeSesion, '/login')
       api.add_resource(RegistroUsuario, '/signup')
+      api.add_resource(PerfilUsuario, '/perfil')  

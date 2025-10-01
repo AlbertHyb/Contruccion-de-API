@@ -44,8 +44,6 @@ class RegistroUsuario(Resource):
         # Limpiar el teléfono (quitar espacios y caracteres especiales)
         telefono_limpio = ''.join(filter(str.isdigit, telefono))
 
-        print(f"Datos recibidos - Nombre: {nombre}, Correo: {correo}, Teléfono: {telefono} -> Limpio: {telefono_limpio}")
-
         #Registro en Supabase Auth
         try:
             response = supabase.auth.sign_up({
@@ -59,13 +57,11 @@ class RegistroUsuario(Resource):
                 }
             })
 
-            print(f"Respuesta Auth: {response}")
-            print(f"Usuario creado: {response.user}")
+        
 
             if response.user:
                 #Guardar informacion adicional en la tabla "usuarios"
                 auth_id = response.user.id
-                print(f"🔑 Auth ID: {auth_id}")
 
                 # Datos que vamos a insertar
                 datos_insertar = {
@@ -74,17 +70,13 @@ class RegistroUsuario(Resource):
                     "correo": correo,
                     "telefono": telefono_limpio
                 }
-                print(f"Datos a insertar: {datos_insertar}")
-
+                
                 try:
                     result = supabase.table("usuarios").insert(datos_insertar).execute()
                     
-                    print(f"Resultado completo: {result}")
-                    print(f"Data insertada: {result.data}")
-                    print(f"Count: {result.count}")
+                
                     
                     if hasattr(result, 'error') and result.error:
-                        print(f"Error en inserción: {result.error}")
                         return f"Error al guardar: {result.error}"
                     
                     if result.data and len(result.data) > 0:
@@ -93,10 +85,92 @@ class RegistroUsuario(Resource):
                         return f"Usuario creado en Auth pero no se guardó en tabla usuarios. Resultado: {result}"
                         
                 except Exception as tabla_error:
-                    print(f"Excepción al insertar en tabla: {tabla_error}")
                     return f"Error al insertar en tabla usuarios: {str(tabla_error)}"
             else:
                 return f"Error en el registro: {response}"
         except Exception as e:
-            print(f"Excepción: {e}")
             return f"Excepcion durante el registro: {str(e)}"
+        
+class PerfilUsuario(Resource):
+    def get(self):
+        try:
+        
+            # Obtener datos actuales del usuario
+            result = supabase.table("usuarios").select("*").limit(1).execute()
+            
+            usuario_data = {}
+            if result.data and len(result.data) > 0:
+                usuario_data = result.data[0]
+            
+            return make_response(render_template('perfil.html', usuario=usuario_data))
+        except Exception as e:
+            return make_response(render_template('perfil.html', error=f"Error al cargar perfil: {str(e)}"))
+          
+    
+    def post(self):
+        # Capturar datos del formulario (nombres consistentes con el HTML)
+        username = request.form.get('username')
+        email = request.form.get('email')
+        password = request.form.get('password')
+        confirm_password = request.form.get('confirm_password')
+
+        # Validaciones basicas
+        if not email or not username:
+            return "Error: El nombre de usuario y correo son obligatorios"
+
+        # Validar contraseña si se proporciona
+        if password:
+            if len(password) < 6:
+                return "Error: La contraseña debe tener al menos 6 caracteres"
+            if password != confirm_password:
+                return "Error: Las contraseñas no coinciden"
+
+        try:
+
+            # Buscar usuario por correo para obtener su ID
+            buscar_usuario = supabase.table("usuarios").select("*").eq("correo", email).execute()
+            
+            if not buscar_usuario.data or len(buscar_usuario.data) == 0:
+                return "Error: No se encontró un usuario con ese correo"
+
+            usuario_id = buscar_usuario.data[0]['id']
+            
+            datos_actualizar = {
+                "nombre": username,
+                "correo": email
+            }
+
+            # Actualizar usando el ID del usuario
+            result = supabase.table("usuarios").update(datos_actualizar).eq("id", usuario_id).execute()
+
+            if hasattr(result, 'error') and result.error:
+                return f"Error al actualizar perfil: {result.error}"
+
+            return "Perfil actualizado exitosamente"
+                
+        except Exception as e:
+            return f"Error durante la actualización del perfil: {str(e)}"
+            
+
+            # Si se proporcionó nueva contraseña, actualizarla en Supabase Auth
+            if password:
+                try:
+                    # Actualizar contraseña en Supabase Auth
+                    auth_response = supabase.auth.update_user({
+                        "password": password
+                    })
+                    
+                    if hasattr(auth_response, 'error') and auth_response.error:
+                        return f"Perfil actualizado, pero error al cambiar contraseña: {auth_response.error}"
+                        
+                except Exception as auth_error:
+                    return f"Perfil actualizado, pero error al cambiar contraseña: {str(auth_error)}"
+
+            if result.data and len(result.data) > 0:
+                return "Perfil actualizado exitosamente"
+            else:
+                return f"No se encontró el usuario para actualizar"
+                
+        except Exception as e:
+            return f"Error durante la actualización del perfil: {str(e)}"
+        
