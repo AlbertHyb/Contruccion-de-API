@@ -1,12 +1,12 @@
-# 🚀 API REST con Flask
+# API REST con Flask
 
 Un proyecto de API REST desarrollado con Flask y Flask-RESTful para el curso de Programación Avanzada. Esta API proporciona endpoints para gestión de recursos y autenticación de usuarios.
 
-## 📋 Descripción del Proyecto
+## Descripción del Proyecto
 
 Este proyecto implementa una API REST moderna utilizando Flask como framework principal, con una arquitectura modular que separa claramente las responsabilidades entre rutas, recursos y vistas. Incluye un sistema de autenticación con interfaz web y está diseñado para ser escalable y fácil de mantener.
 
-## 🛠️ Tecnologías Utilizadas
+## Tecnologías Utilizadas
 
 - **Backend:**
   - ![Python](https://img.shields.io/badge/Python-3776AB?style=flat&logo=python&logoColor=white) Python 3.x
@@ -17,7 +17,7 @@ Este proyecto implementa una API REST moderna utilizando Flask como framework pr
   - ![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=flat&logo=html5&logoColor=white) HTML5
   - ![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=flat&logo=tailwind-css&logoColor=white) Tailwind CSS
 
-## 📁 Estructura del Proyecto
+## Estructura del Proyecto
 
 ```
 Contruccion-de-API/
@@ -31,7 +31,7 @@ Contruccion-de-API/
 └── README.md           # Documentación del proyecto
 ```
 
-## 🎯 Funcionalidades
+## Funcionalidades
 
 # Construcción de API con Flask y Supabase
 
@@ -136,7 +136,7 @@ curl -X GET http://localhost:5000/
 curl -X GET http://localhost:5000/item/123
 ```
 
-## 🧪 Testing
+## Testing
 
 ```bash
 # Ejecutar tests (cuando estén implementados)
@@ -146,7 +146,7 @@ python -m pytest
 curl -X GET http://localhost:5000/
 ```
 
-## 📝 Desarrollo
+## Desarrollo
 
 ### Contribuir al proyecto
 
@@ -175,7 +175,7 @@ SECRET_KEY=tu-clave-secreta-aqui
 DATABASE_URL=sqlite:///app.db
 ```
 
-## 🐛 Solución de Problemas
+## Solución de Problemas
 
 ### Problemas comunes
 
@@ -198,7 +198,7 @@ DATABASE_URL=sqlite:///app.db
    source venv/bin/activate
    ```
 
-## 📄 Licencia
+## Licencia
 
 Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más detalles.
 
