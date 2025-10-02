@@ -6,7 +6,7 @@ Un proyecto de API REST desarrollado con Flask y Flask-RESTful para el curso de 
 
 Este proyecto implementa una API REST moderna utilizando Flask como framework principal, con una arquitectura modular que separa claramente las responsabilidades entre rutas, recursos y vistas. Incluye un sistema de autenticación con interfaz web y está diseñado para ser escalable y fácil de mantener.
 
-## 🛠️ Tecnologías Utilizadas
+## Tecnologías Utilizadas
 
 - **Backend:**
   - ![Python](https://img.shields.io/badge/Python-3776AB?style=flat&logo=python&logoColor=white) Python 3.x
