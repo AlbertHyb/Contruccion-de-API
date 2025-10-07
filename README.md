@@ -163,7 +163,7 @@ curl -X GET http://localhost:5000/
 - `style:` para cambios de formato
 - `refactor:` para refactorización de código
 
-## 🔧 Configuración
+## Configuración
 
 ### Variables de entorno
 Crear un archivo `.env` con las siguientes variables:
@@ -202,11 +202,11 @@ DATABASE_URL=sqlite:///app.db
 
 Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más detalles.
 
-## 👨‍💻 Autor
+## Autor
 
 - **Alberto** - [AlbertHyb](https://github.com/AlbertHyb)
 
-## 🤝 Agradecimientos
+## Agradecimientos
 
 - Curso de Programación Avanzada
 - Comunidad de Flask

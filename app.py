@@ -6,6 +6,7 @@ import config
 
 #Estamos creando una instancia/objeto de Flask
 app = Flask(__name__)
+api = Api(app)
 
 #
 app.config['SQLALCHEMY_DATABASE_URI'] = config.SQLALCHEMY_DATABASE_URI

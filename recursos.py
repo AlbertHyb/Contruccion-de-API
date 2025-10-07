@@ -1,9 +1,8 @@
 from flask_restful import Resource
-from flask import render_template, make_response, request
+from flask import render_template, make_response, request, jsonify
 from config import supabase
-
-
-
+from jwt_config import jwt_manager, token_required, refresh_token_required
+import bcrypt
 
 class HelloWorld(Resource):
     def get(self):
@@ -14,15 +13,40 @@ class InicioDeSesion(Resource):
         return make_response(render_template('login.html'))
     
     def post(self):
-        #Tenemos que capturar los datos del formulario
         correo = request.form.get('email')
         contrasena = request.form.get('password')
-        response = supabase.auth.sign_in_with_password({"email": correo, "password": contrasena})
-        #Aqui iria la logica de autenticacion
-        if response.user:
-            return "Inicio de sesion exitoso"
-        else:
-            return "Inicio de sesion fallido"
+        
+        if not correo or not contrasena:
+            return jsonify({'error': 'Email y contraseña son requeridos'}), 400
+        
+        try:
+            # Autenticar con Supabase
+            response = supabase.auth.sign_in_with_password({
+                "email": correo, 
+                "password": contrasena
+            })
+            
+            if response.user:
+                user_id = response.user.id
+                
+                # Generar tokens usando jwt_manager
+                access_token = jwt_manager.generar_access_token(user_id, correo)
+                refresh_token = jwt_manager.generar_refresh_token(user_id, correo)
+                
+                return jsonify({
+                    'mensaje': 'Inicio de sesión exitoso',
+                    'access_token': access_token,
+                    'refresh_token': refresh_token,
+                    'usuario': {
+                        'id': user_id,
+                        'email': correo
+                    }
+                }), 200
+            else:
+                return jsonify({'error': 'Credenciales inválidas'}), 401
+                
+        except Exception as e:
+            return jsonify({'error': f'Error en autenticación: {str(e)}'}), 500
 
 class RegistroUsuario(Resource):
     def get(self):
@@ -36,18 +60,19 @@ class RegistroUsuario(Resource):
 
         # Validaciones
         if not contrasena or len(contrasena) < 6:
-            return "Error: La contraseña debe tener al menos 6 caracteres"
+            return jsonify({'error': 'La contraseña debe tener al menos 6 caracteres'}), 400
         
         if not correo or not nombre or not telefono:
-            return "Error: Todos los campos son obligatorios"
+            return jsonify({'error': 'Todos los campos son obligatorios'}), 400
 
-        # Limpiar el teléfono (quitar espacios y caracteres especiales)
-        telefono_limpio = ''.join(filter(str.isdigit, telefono))
+        
 
-        print(f"Datos recibidos - Nombre: {nombre}, Correo: {correo}, Teléfono: {telefono} -> Limpio: {telefono_limpio}")
-
-        #Registro en Supabase Auth
         try:
+
+            telefono_limpio = ''.join(filter(str.isdigit, telefono))
+
+
+            # Registro en Supabase
             response = supabase.auth.sign_up({
                 "email": correo,
                 "password": contrasena,
@@ -59,44 +84,103 @@ class RegistroUsuario(Resource):
                 }
             })
 
-            print(f"Respuesta Auth: {response}")
-            print(f"Usuario creado: {response.user}")
-
             if response.user:
-                #Guardar informacion adicional en la tabla "usuarios"
                 auth_id = response.user.id
-                print(f"🔑 Auth ID: {auth_id}")
-
-                # Datos que vamos a insertar
+                
+                # Guardar en tabla usuarios
                 datos_insertar = {
                     "auth_id": auth_id,
                     "nombre": nombre,
                     "correo": correo,
                     "telefono": telefono_limpio
                 }
-                print(f"Datos a insertar: {datos_insertar}")
-
-                try:
-                    result = supabase.table("usuarios").insert(datos_insertar).execute()
+                
+                result = supabase.table("usuarios").insert(datos_insertar).execute()
+                
+                if result.data:
+                    # Generar tokens para usuario recién registrado
+                    access_token = jwt_manager.generar_access_token(auth_id, correo)
+                    refresh_token = jwt_manager.generar_refresh_token(auth_id, correo)
                     
-                    print(f"Resultado completo: {result}")
-                    print(f"Data insertada: {result.data}")
-                    print(f"Count: {result.count}")
-                    
-                    if hasattr(result, 'error') and result.error:
-                        print(f"Error en inserción: {result.error}")
-                        return f"Error al guardar: {result.error}"
-                    
-                    if result.data and len(result.data) > 0:
-                        return "Registro exitoso, usuario guardado en base de datos"
-                    else:
-                        return f"Usuario creado en Auth pero no se guardó en tabla usuarios. Resultado: {result}"
-                        
-                except Exception as tabla_error:
-                    print(f"Excepción al insertar en tabla: {tabla_error}")
-                    return f"Error al insertar en tabla usuarios: {str(tabla_error)}"
+                    return jsonify({
+                        'mensaje': 'Registro exitoso',
+                        'access_token': access_token,
+                        'refresh_token': refresh_token,
+                        'usuario': {
+                            'id': auth_id,
+                            'email': correo,
+                            'nombre': nombre
+                        }
+                    }), 201
+                else:
+                    return jsonify({'error': 'Error al guardar usuario en base de datos'}), 500
             else:
-                return f"Error en el registro: {response}"
+                return jsonify({'error': 'Error en el registro'}), 400
+                
         except Exception as e:
-            print(f"Excepción: {e}")
-            return f"Excepcion durante el registro: {str(e)}"
+            return jsonify({'error': f'Error durante el registro: {str(e)}'}), 500
+
+class PerfilUsuario(Resource):
+    @token_required
+    def get(self):
+        try:
+            user_id = request.current_user['user_id']
+            
+            # Obtener datos del usuario
+            result = supabase.table("usuarios").select("*").eq("auth_id", user_id).execute()
+            
+            if result.data and len(result.data) > 0:
+                usuario = result.data[0]
+                # No enviar datos sensibles
+                usuario_seguro = {
+                    'id': usuario.get('id'),
+                    'nombre': usuario.get('nombre'),
+                    'correo': usuario.get('correo'),
+                    'telefono': usuario.get('telefono')
+                }
+                return jsonify({'usuario': usuario_seguro}), 200
+            else:
+                return jsonify({'error': 'Usuario no encontrado'}), 404
+                
+        except Exception as e:
+            return jsonify({'error': f'Error al obtener perfil: {str(e)}'}), 500
+        
+
+class RefreshToken(Resource):
+    @refresh_token_required
+    def post(self):
+        """Genera nuevo access token usando refresh token"""
+        try:
+            user_data = request.current_user
+            user_id = user_data['user_id']
+            email = user_data['email']
+            
+            # Generar nuevo access token
+            nuevo_access_token = jwt_manager.generar_access_token(user_id, email)
+            
+            return jsonify({
+                'access_token': nuevo_access_token,
+                'mensaje': 'Token renovado exitosamente'
+            }), 200
+            
+        except Exception as e:
+            return jsonify({'error': f'Error al renovar token: {str(e)}'}), 500
+
+class Logout(Resource):
+    @token_required
+    def post(self):
+        """Cerrar sesión - invalida el token actual"""
+        try:
+            # Obtener token del header
+            auth_header = request.headers.get('Authorization')
+            token = auth_header.split(" ")[1] if auth_header else None
+            
+            if token:
+                jwt_manager.agregar_a_lista_negra(token)
+                return jsonify({'mensaje': 'Sesión cerrada exitosamente'}), 200
+            else:
+                return jsonify({'error': 'Token no encontrado'}), 400
+                
+        except Exception as e:
+            return jsonify({'error': f'Error al cerrar sesión: {str(e)}'}), 500
+
